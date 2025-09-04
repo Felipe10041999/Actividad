@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-
 @RestController
 @RequestMapping("/avisos")
 class AvisosController {
@@ -28,10 +27,9 @@ class AvisosController {
     @PostMapping
     fun crearAviso(@RequestBody aviso: Aviso): String {
         val filas = avisosService.crearAviso(aviso)
-        return if (filas > 0 ) "Aviso creado correctamente"
+        return if (filas > 0) "Aviso creado correctamente"
         else "Error al crear aviso"
     }
-
 
     @PutMapping("/{id}/atender")
     fun atenderAviso(@PathVariable id: Long): String {
@@ -40,11 +38,10 @@ class AvisosController {
         else "No se encontró el aviso"
     }
 
-
-    @DeleteMapping("id")
+    @DeleteMapping("{id}")
     fun eliminarAviso(@PathVariable id: Long): String {
         val filas = avisosService.eliminarAviso(id)
-        return if ( filas > 0)" Aviso eliminado correctamente"
+        return if (filas > 0) " Aviso eliminado correctamente"
         else "El aviso no se eliminó"
     }
 }
