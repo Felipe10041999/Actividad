@@ -23,6 +23,8 @@ class AvisosController {
     @GetMapping("/{id}")
     fun obtenerAvisoPorId(@PathVariable id: Long): Aviso? = avisosService.obtenerAvisoPorId(id)
 
+    @GetMapping("/estado/{estado}")
+    fun obtenerAvisoPorEstado(@PathVariable estado: String): List<Aviso> = avisosService.obtenerAvisoPorEstado(estado)
 
     @PostMapping
     fun crearAviso(@RequestBody aviso: Aviso): String {
@@ -37,11 +39,18 @@ class AvisosController {
         return if (filas > 0) "Aviso atendido correctamente"
         else "No se encontró el aviso"
     }
+    @PutMapping("/{id}/actualizar")
+    fun actualizarAviso(@PathVariable id: Long, @RequestBody aviso: Aviso): String {
+        val filas = avisosService.actualizarAviso(id,aviso.getTitulo(),aviso.getContenido(),aviso.getCategoriaId())
+        return if (filas > 0) "Aviso actualizado correctamente y marcado como ATENDIDO"
+        else "No se encontró el aviso"
+    }
+
 
     @DeleteMapping("{id}")
     fun eliminarAviso(@PathVariable id: Long): String {
         val filas = avisosService.eliminarAviso(id)
         return if (filas > 0) " Aviso eliminado correctamente"
-        else "El aviso no se eliminó"
+        else "El aviso se eliminó"
     }
 }

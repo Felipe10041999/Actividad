@@ -16,6 +16,11 @@ class ComentarioController {
         return if (filas > 0) "Comentario agregado correctamente" else "Error al agregar comentario"
     }
 
+    @GetMapping("/id/{id}")
+    fun obtenerComentarioPorId(@PathVariable id: Long): Comentario? {
+        return comentarioService.obtenerComentarioPorId(id)
+    }
+
     @GetMapping("/aviso/{avisoId}")
     fun obtenerPorAviso(@PathVariable avisoId: Long): List<Comentario> {
         return comentarioService.obtenerComentariosPorAviso(avisoId)

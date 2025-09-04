@@ -48,6 +48,19 @@ class AvisosService {
                 rs.getLong("comunidad_id"),
             )
         }
+    }fun obtenerAvisoPorEstado(estado: String): List<Aviso> {
+        val sql = "SELECT * FROM aviso WHERE estado = ?"
+        return jdbcTemplate.query(sql, arrayOf(estado)) { rs, _ ->
+            Aviso(
+                rs.getLong("id"),
+                rs.getString("titulo"),
+                rs.getString("contenido"),
+                rs.getString("estado"),
+                rs.getLong("categoria_id"),
+                rs.getLong("usuario_id"),
+                rs.getLong("comunidad_id"),
+            )
+        }
     }
 
     fun crearAviso(aviso: Aviso): Int {
@@ -78,7 +91,6 @@ class AvisosService {
 
         return filas
     }
-
     fun marcarAvisoAtendido(id: Long): Int {
         val sql = "UPDATE aviso SET estado = 'ATENDIDO' WHERE id = ?"
         logger.info("Se notifica que el aviso con ID $id se marca como ATENDIDO")
@@ -92,6 +104,29 @@ class AvisosService {
                 comunidadId = datos?.getComunidadId(),
                 tipoEvento = "AVISO_ATENDIDO",
                 descripcion = "El aviso con ID $id fue marcado como atendido"
+            )
+        }
+
+        return filas
+    }
+    fun actualizarAviso(id: Long, nuevoTitulo: String, nuevoContenido: String, nuevaCategoriaId: Long): Int {
+        val sql = """
+        UPDATE aviso 
+        SET titulo = ?, contenido = ?, categoria_id = ?, estado = 'ATENDIDO' 
+        WHERE id = ?
+    """
+
+        logger.info("Actualizando aviso ID $id con nuevo título: $nuevoTitulo, nueva categoría: $nuevaCategoriaId")
+
+        val filas = jdbcTemplate.update(sql, nuevoTitulo, nuevoContenido, nuevaCategoriaId, id)
+
+        if (filas > 0) {
+            val datos = obtenerAvisoPorId(id)
+            historialService.registrarEvento(
+                usuarioId = datos?.getUsuarioId(),
+                comunidadId = datos?.getComunidadId(),
+                tipoEvento = "AVISO_ACTUALIZADO",
+                descripcion = "El aviso con ID $id fue actualizado con nuevos datos: título='$nuevoTitulo', categoría=$nuevaCategoriaId"
             )
         }
 

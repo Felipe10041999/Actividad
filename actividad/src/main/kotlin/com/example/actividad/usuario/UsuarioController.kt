@@ -8,40 +8,29 @@ import org.springframework.web.bind.annotation.*
 class UsuarioController {
 
     @Autowired
-    lateinit var usuarioservicio: UsuarioServicio
+    lateinit var usuarioService: UsuarioService
 
     @GetMapping
-    fun obtenerUsuarios(): List<Usuario> {
-        return usuarioservicio.obtenerUsuarios()
-    }
+    fun listarUsuarios(): List<Usuario> = usuarioService.obtenerUsuarios()
+
+    @GetMapping("/{id}")
+    fun obtenerUsuarioPorId(@PathVariable id: Long): Usuario? = usuarioService.obtenerUsuarioPorId(id)
 
     @PostMapping
     fun crearUsuario(@RequestBody usuario: Usuario): String {
-        val resultado = usuarioservicio.agregarUsuario(usuario)
-        return if (resultado > 0) {
-            "Usuario creado correctamente"
-        } else {
-            "Error al crear el usuario"
-        }
+        val filas = usuarioService.crearUsuario(usuario)
+        return if (filas > 0) "Usuario creado correctamente" else "Error al crear usuario"
     }
 
     @PutMapping("/{id}")
-    fun actualizarUsuario(@PathVariable id: Int, @RequestBody usuario: Usuario): String {
-        val resultado = usuarioservicio.actualizarUsuario(id, usuario)
-        return if (resultado > 0) {
-            "Usuario actualizado correctamente"
-        } else {
-            "No se encontró el usuario con id $id"
-        }
+    fun actualizarUsuario(@PathVariable id: Long, @RequestBody usuario: Usuario): String {
+        val filas = usuarioService.actualizarUsuario(id, usuario)
+        return if (filas > 0) "Usuario actualizado correctamente" else "Usuario no encontrado"
     }
 
     @DeleteMapping("/{id}")
-    fun eliminarUsuario(@PathVariable id: Int): String {
-        val resultado = usuarioservicio.eliminarUsuario(id)
-        return if (resultado > 0) {
-            "Usuario eliminado correctamente"
-        } else {
-            "No se encontró el usuario con id $id"
-        }
+    fun eliminarUsuario(@PathVariable id: Long): String {
+        val filas = usuarioService.eliminarUsuario(id)
+        return if (filas > 0) "Usuario eliminado correctamente" else "Usuario no encontrado o error"
     }
 }

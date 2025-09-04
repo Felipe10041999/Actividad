@@ -4,9 +4,10 @@ import com.example.actividad.historial.HistorialService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Service
-import java.sql.ResultSet
-import java.time.LocalDateTime
+
+
 
 @Service
 class ComentarioService {
@@ -18,37 +19,47 @@ class ComentarioService {
 
     @Autowired
     lateinit var historialService: HistorialService
+    var mapRow = RowMapper{rs, _-> Comentario(
+        rs.getLong("id"),
+        rs.getString("contenido"),
+        rs.getLong("usuario_id"),
+        rs.getLong("aviso_id"),
+        rs.getLong("comunidad_id"),
+        rs.getTimestamp("fecha_creacion").toLocalDateTime()
+    )
+    }
+
 
     fun agregarComentario(comentario: Comentario): Int {
         val sql = """
             INSERT INTO comentario (contenido, usuario_id, aviso_id, comunidad_id, fecha_creacion)
             VALUES (?, ?, ?, ?, NOW())
-        """.trimIndent()
+        """
 
         val filas = jdbcTemplate.update(
             sql,
-            comentario.contenido,
-            comentario.usuarioId,
-            comentario.avisoId,
-            comentario.comunidadId
+            comentario.getContenido(),
+            comentario.getUsuarioId(),
+            comentario.getAvisoId(),
+            comentario.getComunidadid()
         )
 
         if (filas > 0) {
             historialService.registrarEvento(
-                usuarioId = comentario.usuarioId,
-                comunidadId = comentario.comunidadId,
+                usuarioId = comentario.getUsuarioId(),
+                comunidadId = comentario.getComunidadid(),
                 tipoEvento = "COMENTARIO_CREADO",
-                descripcion = "Comentario agregado al aviso ${comentario.avisoId}: '${comentario.contenido.take(100)}...'"
+                descripcion = "Comentario agregado al aviso ${comentario.getAvisoId()}: '${comentario.getContenido().take(100)}...'"
             )
         }
 
-        logger.info("Comentario agregado al aviso ${comentario.avisoId} en comunidad ${comentario.comunidadId}")
+        logger.info("Comentario agregado al aviso ${comentario.getAvisoId()} en comunidad ${comentario.getComunidadid()}")
         return filas
     }
 
     fun obtenerComentariosPorAviso(avisoId: Long): List<Comentario> {
         val sql = "SELECT * FROM comentario WHERE aviso_id = ? ORDER BY fecha_creacion ASC"
-        return jdbcTemplate.query(sql, arrayOf(avisoId)) { rs, _ -> mapRow(rs) }
+        return jdbcTemplate.query(sql, mapRow, avisoId)
     }
 
     fun actualizarComentario(id: Long, nuevoContenido: String): Int {
@@ -58,8 +69,8 @@ class ComentarioService {
         if (filas > 0) {
             val datos = obtenerComentarioPorId(id)
             historialService.registrarEvento(
-                usuarioId = datos?.usuarioId,
-                comunidadId = datos?.comunidadId,
+                usuarioId = datos?.getUsuarioId(),
+                comunidadId = datos?.getComunidadid(),
                 tipoEvento = "COMENTARIO_EDITADO",
                 descripcion = "Comentario con ID $id fue editado"
             )
@@ -75,8 +86,8 @@ class ComentarioService {
 
         if (filas > 0) {
             historialService.registrarEvento(
-                usuarioId = datos?.usuarioId,
-                comunidadId = datos?.comunidadId,
+                usuarioId = datos?.getUsuarioId(),
+                comunidadId = datos?.getComunidadid(),
                 tipoEvento = "COMENTARIO_ELIMINADO",
                 descripcion = "Comentario con ID $id fue eliminado"
             )
@@ -86,19 +97,10 @@ class ComentarioService {
         return filas
     }
 
-    private fun obtenerComentarioPorId(id: Long): Comentario? {
+     fun obtenerComentarioPorId(id: Long): Comentario? {
         val sql = "SELECT * FROM comentario WHERE id = ?"
-        return jdbcTemplate.query(sql, arrayOf(id)) { rs, _ -> mapRow(rs) }.firstOrNull()
+        return jdbcTemplate.queryForObject(sql, mapRow, id)
     }
 
-    private fun mapRow(rs: ResultSet): Comentario {
-        return Comentario(
-            id = rs.getLong("id"),
-            contenido = rs.getString("contenido"),
-            usuarioId = rs.getLong("usuario_id").takeIf { !rs.wasNull() },
-            avisoId = rs.getLong("aviso_id"),
-            comunidadId = rs.getLong("comunidad_id").takeIf { !rs.wasNull() },
-            fechaCreacion = rs.getTimestamp("fecha_creacion").toLocalDateTime()
-        )
-    }
+
 }
