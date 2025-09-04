@@ -2,7 +2,7 @@ package com.example.actividad.aviso
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
-data class Aviso(
+class Aviso(
     private val id: Long = 0,
     private val titulo: String,
     private val contenido: String,
