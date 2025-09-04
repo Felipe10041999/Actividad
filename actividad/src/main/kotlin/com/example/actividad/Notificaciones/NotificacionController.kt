@@ -6,12 +6,11 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/notificaciones")
 class NotificacionController(
-    @Autowired private val notificacionService: NotificacionService
-) {
+    @Autowired private val notificacionService: NotificacionService) {
 
     // Endpoint para crear una notificación
     @PostMapping
-    fun crearNotificacion(@RequestBody request: NotificacionRequest): String {
+    fun crearNotificacion(@RequestBody request: Notificacion): String {
         notificacionService.crearNotificacion(request.mensaje)
         return "Notificación creada"
     }
@@ -23,7 +22,4 @@ class NotificacionController(
     }
 }
 
-// Clase para mapear el JSON que recibes en POST
-data class NotificacionRequest(
-    val mensaje: String
-)
+
