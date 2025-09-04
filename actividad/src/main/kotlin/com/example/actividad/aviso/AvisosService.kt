@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 @Service
 class AvisosService {
 
-    private val logger = LoggerFactory.getLogger(AvisosService::class.java)
+     val logger = LoggerFactory.getLogger(AvisosService::class.java)
 
     @Autowired
     lateinit var jdbcTemplate: JdbcTemplate
@@ -135,18 +135,7 @@ class AvisosService {
         val sql = "DELETE FROM aviso WHERE id = ?"
         logger.info("Se eliminó el aviso con ID: $id")
 
-        val filas = jdbcTemplate.update(sql, id)
+        return jdbcTemplate.update(sql, id)
 
-        if (filas > 0) {
-            val datos = obtenerAvisoPorId(id)
-            historialService.registrarEvento(
-                usuarioId = datos?.getUsuarioId(),
-                comunidadId = datos?.getComunidadId(),
-                tipoEvento = "AVISO_ELIMINADO",
-                descripcion = "El aviso con ID $id fue eliminado"
-            )
-        }
-
-        return filas
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 @Service
 class UsuarioService {
 
-    private val logger = LoggerFactory.getLogger(UsuarioService::class.java)
+    val logger = LoggerFactory.getLogger(UsuarioService::class.java)
 
     @Autowired
     lateinit var jdbcTemplate: JdbcTemplate

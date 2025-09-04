@@ -10,7 +10,7 @@ import java.sql.ResultSet
 @Service
 class HistorialService {
 
-    private val logger = LoggerFactory.getLogger(HistorialService::class.java)
+    val logger = LoggerFactory.getLogger(HistorialService::class.java)
 
     @Autowired
     lateinit var jdbcTemplate: JdbcTemplate

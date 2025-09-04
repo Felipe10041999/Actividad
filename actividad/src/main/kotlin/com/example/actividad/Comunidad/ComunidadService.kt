@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 @Service
 class ComunidadService {
 
-    private val logger = LoggerFactory.getLogger(ComunidadService::class.java)
+    val logger = LoggerFactory.getLogger(ComunidadService::class.java)
 
     @Autowired
     lateinit var jdbcTemplate: JdbcTemplate

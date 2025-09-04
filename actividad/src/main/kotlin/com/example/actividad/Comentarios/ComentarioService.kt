@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 @Service
 class ComentarioService {
 
-    private val logger = LoggerFactory.getLogger(ComentarioService::class.java)
+    val logger = LoggerFactory.getLogger(ComentarioService::class.java)
 
     @Autowired
     lateinit var jdbcTemplate: JdbcTemplate
@@ -28,7 +28,10 @@ class ComentarioService {
         rs.getTimestamp("fecha_creacion").toLocalDateTime()
     )
     }
-
+    fun obtenerComentarioPorId(id: Long): Comentario? {
+        val sql = "SELECT * FROM comentario WHERE id = ?"
+        return jdbcTemplate.queryForObject(sql, mapRow, id)
+    }
 
     fun agregarComentario(comentario: Comentario): Int {
         val sql = """
@@ -97,10 +100,7 @@ class ComentarioService {
         return filas
     }
 
-     fun obtenerComentarioPorId(id: Long): Comentario? {
-        val sql = "SELECT * FROM comentario WHERE id = ?"
-        return jdbcTemplate.queryForObject(sql, mapRow, id)
-    }
+
 
 
 }
