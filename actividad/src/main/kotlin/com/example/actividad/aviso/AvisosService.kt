@@ -1,7 +1,6 @@
 package com.example.actividad.aviso
 
 import com.example.actividad.historial.HistorialService
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
@@ -10,15 +9,14 @@ import org.springframework.stereotype.Service
 @Service
 class AvisosService {
 
-    companion object {
-        private val logger: Logger = LoggerFactory.getLogger(AvisosService::class.java)
-    }
+    private val logger = LoggerFactory.getLogger(AvisosService::class.java)
 
     @Autowired
     lateinit var jdbcTemplate: JdbcTemplate
 
     @Autowired
     lateinit var historialService: HistorialService
+
 
     fun obtenerAvisos(): List<Aviso> {
         val sql = "SELECT * FROM aviso"

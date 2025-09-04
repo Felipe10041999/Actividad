@@ -4,6 +4,7 @@ import com.example.actividad.historial.HistorialService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,35 +17,26 @@ class UsuarioService {
 
     @Autowired
     lateinit var historialService: HistorialService
+    var mapRow= RowMapper{rs, _->
+        Usuario(
+            rs.getLong("id"),
+            rs.getString("nombre"),
+            rs.getString("email"),
+            rs.getString("contrasena"),
+            rs.getString("direccion"),
+            rs.getLong("comunidad_id"),
+            rs.getString("rol")
+        )
+    }
 
     fun obtenerUsuarios(): List<Usuario> {
         val sql = "SELECT * FROM usuario"
-        return jdbcTemplate.query(sql) { rs, _ ->
-            Usuario(
-                rs.getLong("id"),
-                rs.getString("nombre"),
-                rs.getString("email"),
-                rs.getString("contrasena"),
-                rs.getString("direccion"),
-                rs.getLong("comunidad_id"),
-                rs.getString("rol")
-            )
-        }
+        return jdbcTemplate.query(sql, mapRow)
     }
 
     fun obtenerUsuarioPorId(id: Long): Usuario? {
         val sql = "SELECT * FROM usuario WHERE id = ?"
-        return jdbcTemplate.query(sql, arrayOf(id)) { rs, _ ->
-            Usuario(
-                rs.getLong("id"),
-                rs.getString("nombre"),
-                rs.getString("email"),
-                rs.getString("contrasena"),
-                rs.getString("direccion"),
-                rs.getLong("comunidad_id"),
-                rs.getString("rol")
-            )
-        }.firstOrNull()
+        return jdbcTemplate.queryForObject(sql,mapRow,id)
     }
 
     fun crearUsuario(usuario: Usuario): Int {
