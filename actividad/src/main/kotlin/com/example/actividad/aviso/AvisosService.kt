@@ -46,7 +46,8 @@ class AvisosService {
                 rs.getLong("comunidad_id"),
             )
         }
-    }fun obtenerAvisoPorEstado(estado: String): List<Aviso> {
+    }
+    fun obtenerAvisoPorEstado(estado: String): List<Aviso> {
         val sql = "SELECT * FROM aviso WHERE estado = ?"
         return jdbcTemplate.query(sql, arrayOf(estado)) { rs, _ ->
             Aviso(
@@ -62,11 +63,22 @@ class AvisosService {
     }
 
     fun crearAviso(aviso: Aviso): Int {
-        val sql = """
+            val sqlCheck = "SELECT comunidad_id FROM usuario WHERE id = ?"
+            val comunidadUsuario: Long? = jdbcTemplate.queryForObject(sqlCheck, Long::class.java, aviso.getUsuarioId())
+
+            if (comunidadUsuario == null) {
+                logger.warn("Usuario ${aviso.getUsuarioId()} no existe")
+                return 0
+            }
+
+            if (comunidadUsuario != aviso.getComunidadId()) {
+                logger.warn("Usuario ${aviso.getUsuarioId()} no pertenece a la comunidad ${aviso.getComunidadId()}")
+                return 0
+            }
+            val sql = """
             INSERT INTO aviso (titulo, contenido, estado, categoria_id, usuario_id, comunidad_id, fecha_creacion)
             VALUES (?, ?, ?, ?, ?, ?, NOW())
-        """
-        logger.info("Creando nuevo aviso con título: ${aviso.getTitulo()} publicado en comunidad ${aviso.getComunidadId()}")
+            """
 
         val filas = jdbcTemplate.update(
             sql,
@@ -77,7 +89,7 @@ class AvisosService {
             aviso.getUsuarioId(),
             aviso.getComunidadId()
         )
-
+        logger.info("Creando nuevo aviso con título: ${aviso.getTitulo()} publicado en comunidad ${aviso.getComunidadId()}")
         if (filas > 0) {
             historialService.registrarEvento(
                 usuarioId = aviso.getUsuarioId(),
@@ -138,4 +150,4 @@ class AvisosService {
         return jdbcTemplate.update(sql, id)
 
     }
-}
+    }

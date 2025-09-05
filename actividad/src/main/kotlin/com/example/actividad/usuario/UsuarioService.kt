@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Service
+import org.mindrot.jbcrypt.BCrypt
 
 @Service
 class UsuarioService {
@@ -40,6 +41,7 @@ class UsuarioService {
     }
 
     fun crearUsuario(usuario: Usuario): Int {
+        val password = BCrypt.hashpw(usuario.getContrasena(),BCrypt.gensalt())
         val sql = """
             INSERT INTO usuario (nombre, email, contrasena, direccion, comunidad_id, rol)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -50,7 +52,7 @@ class UsuarioService {
             sql,
             usuario.getNombre(),
             usuario.getEmail(),
-            usuario.getContrasena(),
+            password,
             usuario.getDireccion(),
             usuario.getComunidadid(),
             usuario.getRol()

@@ -34,6 +34,19 @@ class ComentarioService {
     }
 
     fun agregarComentario(comentario: Comentario): Int {
+        val sqlCheck = "SELECT comunidad_id FROM usuario WHERE id = ?"
+        val comunidadUsuario: Long? = jdbcTemplate.queryForObject(sqlCheck, Long::class.java, comentario.getUsuarioId())
+
+        if (comunidadUsuario == null) {
+            logger.warn("Usuario ${comentario.getUsuarioId()} no existe")
+            return 0
+        }
+
+        if (comunidadUsuario != comentario.getComunidadid()) {
+            logger.warn("Usuario ${comentario.getUsuarioId()} no pertenece a la comunidad ${comentario.getComunidadid()}")
+            return 0
+        }
+
         val sql = """
             INSERT INTO comentario (contenido, usuario_id, aviso_id, comunidad_id, fecha_creacion)
             VALUES (?, ?, ?, ?, NOW())
@@ -99,8 +112,5 @@ class ComentarioService {
         logger.info("Comentario con ID $id fue eliminado")
         return filas
     }
-
-
-
 
 }
