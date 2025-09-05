@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service
 @Service
 class AvisosService {
 
+
      val logger = LoggerFactory.getLogger(AvisosService::class.java)
 
     @Autowired
@@ -61,6 +62,21 @@ class AvisosService {
             )
         }
     }
+    fun obtenerAvisoPorCategoria(categoria: Long, comunidad_id: Long): List<Aviso> {
+        val sql = "SELECT * FROM aviso WHERE categoria_id = ? AND comunidad_id=?"
+        return jdbcTemplate.query(sql, arrayOf(categoria, comunidad_id)) { rs, _ ->
+            Aviso(
+                rs.getLong("id"),
+                rs.getString("titulo"),
+                rs.getString("contenido"),
+                rs.getString("estado"),
+                rs.getLong("categoria_id"),
+                rs.getLong("usuario_id"),
+                rs.getLong("comunidad_id"),
+            )
+        }
+    }
+
 
     fun crearAviso(aviso: Aviso): Int {
             val sqlCheck = "SELECT comunidad_id FROM usuario WHERE id = ?"
