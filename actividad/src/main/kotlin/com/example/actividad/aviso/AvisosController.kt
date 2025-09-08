@@ -26,6 +26,9 @@ class AvisosController {
     @GetMapping("/estado/{estado}")
     fun obtenerAvisoPorEstado(@PathVariable estado: String): List<Aviso> = avisosService.obtenerAvisoPorEstado(estado)
 
+    @GetMapping("/categoria/{categoria}/{comunidad}")
+    fun obtenerAvisoPorCategoria(@PathVariable categoria: Long,@PathVariable comunidad: Long): List<Aviso> = avisosService.obtenerAvisoPorCategoria(categoria,comunidad)
+
     @PostMapping
     fun crearAviso(@RequestBody aviso: Aviso): String {
         val filas = avisosService.crearAviso(aviso)
